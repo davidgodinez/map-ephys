@@ -13,7 +13,7 @@ import numpy as np
 _tear_down = False
 
 test_data_dir = pathlib.Path(r'F:/map/test_data_full')
-project_dir = pathlib.Path('..').resolve()
+project_dir = (pathlib.Path(__file__) / '../..').resolve()
 
 
 # ------------------- FIXTURES -------------------
@@ -46,7 +46,12 @@ def dj_config():
 
 @pytest.fixture
 def pipeline():
-    from pipeline import lab, ccf, ephys, experiment, histology, tracking, psth, shell, ingest
+    from pipeline import lab, ccf, ephys, experiment, histology, tracking, psth, shell
+    from pipeline.ingest import behavior as behavior_ingest
+    from pipeline.ingest import ephys as ephys_ingest
+    from pipeline.ingest import tracking as tracking_ingest
+    from pipeline.ingest import histology as histology_ingest
+
 
     yield {'lab': lab,
            'ccf': ccf,
@@ -56,10 +61,10 @@ def pipeline():
            'tracking': tracking,
            'psth': psth,
            'shell': shell,
-           'behavior_ingest': ingest.behavior,
-           'tracking_ingest': ingest.tracking,
-           'ephys_ingest': ingest.ephys,
-           'histology_ingest': ingest.histology
+           'behavior_ingest': behavior_ingest,
+           'tracking_ingest': tracking_ingest,
+           'ephys_ingest': ephys_ingest,
+           'histology_ingest': histology_ingest
            }
 
 
@@ -77,13 +82,13 @@ def testdata_paths():
 @pytest.fixture
 def load_animal(pipeline):
     shell = pipeline['shell']
-    shell.load_animal(project_dir / 'test_data/Multi-regionRecordingNotes_sc.xlsx')
+    shell.load_animal(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
 
     yield
 
 
 @pytest.fixture
-def delay_response_behavior_ingest(load_animal, pipeline):
+def delay_response_behavior_ingestion(load_animal, pipeline):
     behavior_ingest = pipeline['behavior_ingest']
     experiment = pipeline['experiment']
 
@@ -110,7 +115,7 @@ def delay_response_behavior_ingest(load_animal, pipeline):
 
 
 @pytest.fixture
-def foraging_behavior_ingest(load_animal, pipeline):
+def foraging_behavior_ingestion(load_animal, pipeline):
     behavior_ingest = pipeline['behavior_ingest']
     experiment = pipeline['experiment']
 
@@ -135,7 +140,7 @@ def foraging_behavior_ingest(load_animal, pipeline):
 
 
 @pytest.fixture
-def ephys_ingest(delay_response_behavior_ingest, pipeline):
+def ephys_ingestion(delay_response_behavior_ingestion, pipeline):
     ephys_ingest = pipeline['ephys_ingest']
     experiment = pipeline['experiment']
     ephys = pipeline['ephys']
