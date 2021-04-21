@@ -1,4 +1,4 @@
-from . import (dj_config, pipeline, ingest_pipeline,
+from . import (dj_config, pipeline,
                load_animal, delay_response_behavior_ingest,
                foraging_behavior_ingest)
 
@@ -9,4 +9,3 @@ def test_delay_response_behavior_ingest(delay_response_behavior_ingest,
 
     assert len(experiment.Session & 'username = "daveliu"') == 8
     assert len(experiment.Session & 'username = "susu"') == 10
-

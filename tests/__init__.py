@@ -1,4 +1,4 @@
-# run tests: pytest -sv --cov-report term-missing --cov=workflow-array-ephys -p no:warnings
+# run tests: pytest -sv --cov-report term-missing --cov=map-ephys -p no:warnings
 
 import os
 import pytest
@@ -9,6 +9,8 @@ import numpy as np
 
 
 # ------------------- SOME CONSTANTS -------------------
+
+_tear_down = False
 
 test_data_dir = pathlib.Path(r'F:/map/test_data_full')
 project_dir = pathlib.Path('..').resolve()
@@ -44,26 +46,32 @@ def dj_config():
 
 @pytest.fixture
 def pipeline():
-    import pipeline
+    from pipeline import lab, ccf, ephys, experiment, histology, tracking, psth, shell, ingest
 
-    yield {'lab': pipeline.lab,
-           'ccf': pipeline.ccf,
-           'ephys': pipeline.ephys,
-           'experiment': pipeline.experiment,
-           'histology': pipeline.histology,
-           'tracking': pipeline.tracking,
-           'psth': pipeline.psth,
-           'shell': pipeline.shell}
-    
+    yield {'lab': lab,
+           'ccf': ccf,
+           'ephys': ephys,
+           'experiment': experiment,
+           'histology': histology,
+           'tracking': tracking,
+           'psth': psth,
+           'shell': shell,
+           'behavior_ingest': ingest.behavior,
+           'tracking_ingest': ingest.tracking,
+           'ephys_ingest': ingest.ephys,
+           'histology_ingest': ingest.histology
+           }
+
 
 @pytest.fixture
-def ingest_pipeline():
-    from pipeline.ingest import behavior, tracking, ephys, histology
+def testdata_paths():
+    return {
+        'jrclust4-npx1.0_3B': 'SC022/20190303/1/SC022_g0_t0.imec0.ap_res.mat',
+        'ks2-npx2.0_MS': 'SC038/catgt_SC038_111919_115124_g0/SC038_111919_g0_imec0/imec0_ks2',
+        'ks2-npx2.0_SS': 'SC035/catgt_SC035_010720_111723_g0/SC035_010720_g0_imec1/imec1_ks2',
+        'ks2-npx1.0_3B-no_QC': 'SC011/catgt_SC011_021919_151204_g0/SC011_021919_g0_imec2'
 
-    yield {'behavior': behavior,
-           'tracking': tracking,
-           'ephys': ephys,
-           'histology': histology}
+    }
 
 
 @pytest.fixture
@@ -75,8 +83,8 @@ def load_animal(pipeline):
 
 
 @pytest.fixture
-def delay_response_behavior_ingest(load_animal, ingest_pipeline, pipeline):
-    behavior_ingest = ingest_pipeline['behavior']
+def delay_response_behavior_ingest(load_animal, pipeline):
+    behavior_ingest = pipeline['behavior_ingest']
     experiment = pipeline['experiment']
 
     # Dave's sessions
@@ -97,12 +105,13 @@ def delay_response_behavior_ingest(load_animal, ingest_pipeline, pipeline):
 
     yield
 
-    (experiment.Session & 'username in ("susu", "daveliu")').delete()
+    if _tear_down:
+        (experiment.Session & 'username in ("susu", "daveliu")').delete()
 
 
 @pytest.fixture
-def foraging_behavior_ingest(load_animal, ingest_pipeline, pipeline):
-    behavior_ingest = ingest_pipeline['behavior']
+def foraging_behavior_ingest(load_animal, pipeline):
+    behavior_ingest = pipeline['behavior_ingest']
     experiment = pipeline['experiment']
 
     # foraging-task Han's sessions
@@ -117,8 +126,26 @@ def foraging_behavior_ingest(load_animal, ingest_pipeline, pipeline):
              test_data_dir / 'behavior_rigs/Tower-3/Foraging_homecage']
     }
 
-    behavior_ingest.BehaviorBpodIngest.populate()
+    behavior_ingest.BehaviorBpodIngest.populate(suppress_errors=True)
 
     yield
 
-    (experiment.Session & 'username in ("HH")').delete()
+    if _tear_down:
+        (experiment.Session & 'username in ("HH")').delete()
+
+
+@pytest.fixture
+def ephys_ingest(delay_response_behavior_ingest, pipeline):
+    ephys_ingest = pipeline['ephys_ingest']
+    experiment = pipeline['experiment']
+    ephys = pipeline['ephys']
+
+    session_keys = (experiment.Session & 'username = "susu"').fetch('KEY')
+
+    ephys_ingest.EphysIngest.populate(session_keys)
+
+    yield
+
+    if _tear_down:
+        (ephys.ProbeInsertion & session_keys).delete()
+        (ephys_ingest.EphysIngest & session_keys).delete()
