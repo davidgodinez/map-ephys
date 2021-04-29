@@ -1,11 +1,11 @@
-
 import datajoint as dj
+import numpy as np
+from scipy.interpolate import CubicSpline
+from scipy import signal
+from scipy.stats import poisson
 
 from . import lab, experiment, ccf
 from . import get_schema_name
-
-import numpy as np
-from scipy.interpolate import CubicSpline
 
 schema = dj.schema(get_schema_name('ephys'))
 [lab, experiment, ccf]  # NOQA flake8
@@ -195,6 +195,22 @@ class UnitNote(dj.Imported):
     note_source: varchar(36)  # e.g. "sort", "Davesort", "Han-sort"
     ---
     note_value: varchar(128)
+    """
+
+    key_source = ProbeInsertion & Unit.proj()
+
+    def make(self, key):
+        pass
+
+
+@schema
+class UnitNoiseLabel(dj.Imported):
+    definition = """
+    # labeling based on the noiseTemplate module
+    # (https://github.com/jenniferColonell/ecephys_spike_sorting/tree/master/ecephys_spike_sorting/modules/noise_templates)
+    -> Unit
+    ---
+    noise: enum('good', 'noise')
     """
 
     key_source = ProbeInsertion & Unit.proj()
@@ -403,15 +419,34 @@ class MAPClusterMetric(dj.Computed):
         drift_metric: float
         """
 
+    key_source = Unit & UnitStat
+
     def make(self, key):
-        # do computation
-        #
-        # self.insert1(key)
-        # self.DriftMetric.insert1({**key, 'drift_metric': 0})
-        pass
+        # -- get trial-spikes
+        trial_spikes, trial_durations = (
+                Unit.TrialSpikes
+                * (experiment.TrialEvent & 'trial_event_type = "trialend"')
+                & key).fetch('spike_times', 'trial_event_time', order_by='trial')
+        # -- compute trial spike-rates
+        trial_spike_rates = [len(s) for s in trial_spikes] / trial_durations.astype(float)  # spikes/sec
+        # mean_spike_rate = (UnitStat & key).fetch1('avg_firing_rate')
+        mean_spike_rate = np.mean(trial_spike_rates)
+        # -- moving-average
+        window_size = 6  # sample
+        kernel = np.ones(window_size) / window_size
+        processed_trial_spike_rates = np.convolve(trial_spike_rates, kernel, 'same')
+        # -- down-sample
+        ds_factor = 6
+        processed_trial_spike_rates = processed_trial_spike_rates[::ds_factor]
+        # -- compute drift_qc from poisson distribution
+        poisson_cdf = poisson.cdf(processed_trial_spike_rates, mean_spike_rate)
+        instability = np.logical_or(poisson_cdf > 0.95, poisson_cdf < 0.05).sum() / len(poisson_cdf)
+        # -- insert
+        self.insert1(key)
+        self.DriftMetric.insert1({**key, 'drift_metric': instability})
 
 
-# TODO: confirm the logic/need for this table
+#TODO: confirm the logic/need for this table
 @schema
 class UnitCCF(dj.Computed):
     definition = """ 
