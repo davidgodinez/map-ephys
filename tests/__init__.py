@@ -52,7 +52,6 @@ def pipeline():
     from pipeline.ingest import tracking as tracking_ingest
     from pipeline.ingest import histology as histology_ingest
 
-
     yield {'lab': lab,
            'ccf': ccf,
            'ephys': ephys,
@@ -74,8 +73,9 @@ def testdata_paths():
         'jrclust4-npx1.0_3B': 'SC022/20190303/1/SC022_g0_t0.imec0.ap_res.mat',
         'ks2-npx2.0_MS': 'SC038/catgt_SC038_111919_115124_g0/SC038_111919_g0_imec0/imec0_ks2',
         'ks2-npx2.0_SS': 'SC035/catgt_SC035_010720_111723_g0/SC035_010720_g0_imec1/imec1_ks2',
-        'ks2-npx1.0_3B-no_QC': 'SC011/catgt_SC011_021919_151204_g0/SC011_021919_g0_imec2'
-
+        'ks2-npx1.0_3B-no_QC': 'SC011/catgt_SC011_021919_151204_g0/SC011_021919_g0_imec2',
+        'delay-response-daveliu': 'dl56_tw2_20181126_134907.mat',
+        'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat'
     }
 
 
