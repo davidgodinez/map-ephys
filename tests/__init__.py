@@ -155,8 +155,9 @@ def multi_target_licking_behavior_ingestion(load_animal, pipeline):
     yield
 
     if _tear_down:
-        (experiment.Session
-         & (experiment.BehaviorTrial & 'task = "multi-target-licking"')).delete()
+        session_keys = (experiment.Session & (experiment.BehaviorTrial
+                                              & 'task = "multi-target-licking"')).fetch('KEY')
+        (experiment.Session & session_keys).delete()
 
 
 @pytest.fixture
