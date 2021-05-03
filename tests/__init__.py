@@ -26,7 +26,6 @@ def dj_config():
                  'database.reconnect': True,
                  'enable_python_native_blobs': True,
                  'cache': 'F:/map/djcache'}
-
     dj.config['custom'] = {
         'ccf_data_paths': {
             'annotation_nrrd': project_dir / 'annotation_10.nrrd',
@@ -75,7 +74,8 @@ def testdata_paths():
         'ks2-npx2.0_SS': 'SC035/catgt_SC035_010720_111723_g0/SC035_010720_g0_imec1/imec1_ks2',
         'ks2-npx1.0_3B-no_QC': 'SC011/catgt_SC011_021919_151204_g0/SC011_021919_g0_imec2',
         'delay-response-daveliu': 'dl56_tw2_20181126_134907.mat',
-        'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat'
+        'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat',
+        'multi-target-licking': 'DL009_af_2D_20210415_141520.mat'
     }
 
 
