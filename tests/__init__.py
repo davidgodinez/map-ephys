@@ -140,6 +140,26 @@ def foraging_behavior_ingestion(load_animal, pipeline):
 
 
 @pytest.fixture
+def multi_target_licking_behavior_ingestion(load_animal, pipeline):
+    behavior_ingest = pipeline['behavior_ingest']
+    experiment = pipeline['experiment']
+
+    # Dave's sessions
+    dj.config['custom']['session.user'] = 'daveliu'
+    dj.config['custom']['behavior_data_paths'] = [
+        ['RRig3', test_data_dir / 'behavior/multi_target_licking', 0]
+    ]
+
+    behavior_ingest.BehaviorIngest.populate()
+
+    yield
+
+    if _tear_down:
+        (experiment.Session
+         & (experiment.BehaviorTrial & 'task = "multi-target-licking"')).delete()
+
+
+@pytest.fixture
 def ephys_ingestion(delay_response_behavior_ingestion, pipeline):
     ephys_ingest = pipeline['ephys_ingest']
     experiment = pipeline['experiment']
