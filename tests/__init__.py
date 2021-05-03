@@ -26,6 +26,11 @@ def dj_config():
                  'database.reconnect': True,
                  'enable_python_native_blobs': True,
                  'cache': 'F:/map/djcache'}
+    dj.config['stores'] = {"report_store":
+                               {"protocol": "file",
+                                "location": "F:/map/figure_report",
+                                "stage": "F:/map/figure_report"}
+                           }
     dj.config['custom'] = {
         'ccf_data_paths': {
             'annotation_nrrd': project_dir / 'annotation_10.nrrd',
