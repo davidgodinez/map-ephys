@@ -12,7 +12,8 @@ import numpy as np
 
 _tear_down = False
 
-test_data_dir = pathlib.Path(r'F:/map/test_data_full')
+root_data_dir = pathlib.Path(r'F:/map')
+test_data_dir = root_data_dir / 'test_data_full'
 project_dir = (pathlib.Path(__file__) / '../..').resolve()
 
 
@@ -25,12 +26,12 @@ def dj_config():
     dj.config['database.password'] = 'simple'
     dj.config['database.reconnect'] = True
     dj.config['enable_python_native_blobs'] = True
-    dj.config['cache'] = 'F:/map/djcache'
+    dj.config['cache'] = (root_data_dir / 'djcache').as_posix()
 
     dj.config['stores'] = {'report_store':
                                {'protocol': 'file',
-                                'location': 'F:/map/figure_report',
-                                'stage': 'F:/map/figure_report'}
+                                'location': (root_data_dir / 'figure_report').as_posix(),
+                                'stage': (root_data_dir / 'figure_report').as_posix()}
                            }
 
     dj.config['custom'] = {
