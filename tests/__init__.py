@@ -20,17 +20,19 @@ project_dir = (pathlib.Path(__file__) / '../..').resolve()
 
 @pytest.fixture(autouse=True)
 def dj_config():
-    dj.config = {'database.host': 'localhost',
-                 'database.password': 'simple',
-                 'database.port': 3306,
-                 'database.reconnect': True,
-                 'enable_python_native_blobs': True,
-                 'cache': 'F:/map/djcache'}
-    dj.config['stores'] = {"report_store":
-                               {"protocol": "file",
-                                "location": "F:/map/figure_report",
-                                "stage": "F:/map/figure_report"}
+    dj.config['database.host'] = 'localhost'
+    dj.config['database.user'] = 'root'
+    dj.config['database.password'] = 'simple'
+    dj.config['database.reconnect'] = True
+    dj.config['enable_python_native_blobs'] = True
+    dj.config['cache'] = 'F:/map/djcache'
+
+    dj.config['stores'] = {'report_store':
+                               {'protocol': 'file',
+                                'location': 'F:/map/figure_report',
+                                'stage': 'F:/map/figure_report'}
                            }
+
     dj.config['custom'] = {
         'ccf_data_paths': {
             'annotation_nrrd': project_dir / 'annotation_10.nrrd',

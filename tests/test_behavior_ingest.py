@@ -11,8 +11,10 @@ def test_delay_response_behavior_ingest(delay_response_behavior_ingestion,
     experiment = pipeline['experiment']
     behavior_ingest = pipeline['behavior_ingest']
 
-    assert len(experiment.Session & 'username = "daveliu"') == 8
-    assert len(experiment.Session & 'username = "susu"') == 10
+    assert len(experiment.Session & 'username = "daveliu"'
+               & (experiment.BehaviorTrial & 'task = "audio delay"')) == 8
+    assert len(experiment.Session & 'username = "susu"'
+               & (experiment.BehaviorTrial & 'task = "audio delay"')) == 10
 
     # test-case for 1 Susu's session
     rel_path = testdata_paths['delay-response-daveliu']

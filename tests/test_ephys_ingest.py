@@ -13,7 +13,7 @@ def test_ephys_ingest(pipeline, ephys_ingestion):
 
 def test_jrclust_ingest(pipeline, ephys_ingestion, testdata_paths):
     ephys = pipeline['ephys']
-    ephys_ingestion = pipeline['ephys_ingestion']
+    ephys_ingestion = pipeline['ephys_ingest']
 
     rel_path = testdata_paths['jrclust4-npx1.0_3B']
     rel_path_win = rel_path.replace(r'/', r'\\')
@@ -36,7 +36,7 @@ def test_jrclust_ingest(pipeline, ephys_ingestion, testdata_paths):
 
 def test_ks2_noQC_ingest(pipeline, ephys_ingestion, testdata_paths):
     ephys = pipeline['ephys']
-    ephys_ingestion = pipeline['ephys_ingestion']
+    ephys_ingestion = pipeline['ephys_ingest']
 
     rel_path = testdata_paths['ks2-npx1.0_3B-no_QC']
     rel_path_win = rel_path.replace(r'/', r'\\')
@@ -59,7 +59,7 @@ def test_ks2_noQC_ingest(pipeline, ephys_ingestion, testdata_paths):
 
 def test_ks2_npx2_ingest(pipeline, ephys_ingestion, testdata_paths):
     ephys = pipeline['ephys']
-    ephys_ingestion = pipeline['ephys_ingestion']
+    ephys_ingestion = pipeline['ephys_ingest']
 
     # NPX 2.0 SS
     rel_path = testdata_paths['ks2-npx2.0_SS']
