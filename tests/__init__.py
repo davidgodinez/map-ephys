@@ -53,7 +53,7 @@ def dj_config():
 
 @pytest.fixture
 def pipeline():
-    from pipeline import lab, ccf, ephys, experiment, histology, tracking, psth, shell
+    from pipeline import lab, ccf, ephys, experiment, histology, tracking, psth, shell, export
     from pipeline.ingest import behavior as behavior_ingest
     from pipeline.ingest import ephys as ephys_ingest
     from pipeline.ingest import tracking as tracking_ingest
@@ -183,3 +183,11 @@ def ephys_ingestion(delay_response_behavior_ingestion, pipeline):
     if _tear_down:
         (ephys.ProbeInsertion & session_keys).delete()
         (ephys_ingest.EphysIngest & session_keys).delete()
+
+
+@pytest.fixture
+def load_insertion_location(ephys_ingestion, pipeline):
+    shell = pipeline['shell']
+    shell.load_insertion_location(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
+
+    yield
