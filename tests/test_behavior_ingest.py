@@ -81,5 +81,5 @@ def test_multi_target_licking_behavior_ingest_invalid_trials(
 
     # the original trial numbering of trial 196 is actually 198
     trial_196_bitcode = (experiment.TrialNote & session_key
-                       & 'trial_note_type = "bitcode"' & 'trial = 196').fetch1('trial_note')
+                         & 'trial_note_type = "bitcode"' & 'trial = 196').fetch1('trial_note')
     assert trial_196_bitcode == np.binary_repr(198, 10)[::-1]
