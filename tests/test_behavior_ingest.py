@@ -44,7 +44,7 @@ def test_multi_target_licking_behavior_ingest(multi_target_licking_behavior_inge
     experiment = pipeline['experiment']
     behavior_ingest = pipeline['behavior_ingest']
 
-    rel_path = testdata_paths['multi-target-licking']
+    rel_path = testdata_paths['multi-target-licking-a']
     session_key = (experiment.Session
                    & (behavior_ingest.BehaviorIngest.BehaviorFile
                       & f'behavior_file = "{rel_path}"')).fetch1('KEY')
@@ -61,3 +61,25 @@ def test_multi_target_licking_behavior_ingest(multi_target_licking_behavior_inge
     assert np.array_equal(
         water_ports,
         ['mtl-5', 'mtl-4', 'mtl-3', 'mtl-8', 'mtl-2', 'mtl-6', 'mtl-9', 'mtl-5'])
+
+
+def test_multi_target_licking_behavior_ingest_invalid_trials(
+        multi_target_licking_behavior_ingestion, pipeline, testdata_paths):
+    experiment = pipeline['experiment']
+    behavior_ingest = pipeline['behavior_ingest']
+
+    rel_path = testdata_paths['multi-target-licking-b']
+    session_key = (experiment.Session
+                   & (behavior_ingest.BehaviorIngest.BehaviorFile
+                      & f'behavior_file = "{rel_path}"')).fetch1('KEY')
+    assert len(experiment.BehaviorTrial & session_key) == 196
+
+    # the original trial numbering of trial 1 is also 1
+    trial_1_bitcode = (experiment.TrialNote & session_key
+                       & 'trial_note_type = "bitcode"' & 'trial = 1').fetch1('trial_note')
+    assert trial_1_bitcode == np.binary_repr(1, 10)[::-1]
+
+    # the original trial numbering of trial 196 is actually 198
+    trial_196_bitcode = (experiment.TrialNote & session_key
+                       & 'trial_note_type = "bitcode"' & 'trial = 196').fetch1('trial_note')
+    assert trial_196_bitcode == np.binary_repr(198, 10)[::-1]

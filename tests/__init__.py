@@ -83,7 +83,8 @@ def testdata_paths():
         'ks2-npx1.0_3B-no_QC': 'SC011/catgt_SC011_021919_151204_g0/SC011_021919_g0_imec2',
         'delay-response-daveliu': 'dl56_tw2_20181126_134907.mat',
         'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat',
-        'multi-target-licking': 'DL009_af_2D_20210415_141520.mat'
+        'multi-target-licking-a': 'DL009_af_2D_20210415_141520.mat',
+        'multi-target-licking-b': 'DL010_af_2D_20210422_164220.mat'
     }
 
 
