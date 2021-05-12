@@ -43,10 +43,6 @@ def dj_config():
             'version_name': 'CCF_2017'},
         'ephys_data_paths': [test_data_dir / 'ephys'],
         'histology_data_paths': [test_data_dir / 'ephys'],
-        'tracking_data_paths': [
-            ['RRig', test_data_dir / 'ephys'],
-            ['RRig2', test_data_dir / 'SusuTracking']
-        ]
     }
     return
 
@@ -156,7 +152,7 @@ def multi_target_licking_behavior_ingestion(load_animal, pipeline):
     # Dave's sessions
     dj.config['custom']['session.user'] = 'daveliu'
     dj.config['custom']['behavior_data_paths'] = [
-        ['RRig3', test_data_dir / 'behavior/multi_target_licking', 0]
+        ['RRig-MLT', test_data_dir / 'behavior/multi_target_licking', 0]
     ]
 
     behavior_ingest.BehaviorIngest.populate()
@@ -192,3 +188,30 @@ def load_insertion_location(ephys_ingestion, pipeline):
     shell.load_insertion_location(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
 
     yield
+
+
+@pytest.fixture
+def tracking_ingestion(delay_response_behavior_ingestion,
+                       multi_target_licking_behavior_ingestion,
+                       pipeline):
+    tracking_ingest = pipeline['tracking_ingest']
+    experiment = pipeline['experiment']
+    tracking = pipeline['tracking']
+
+
+    # Dave's sessions
+    dj.config['custom']['session.user'] = 'daveliu'
+    dj.config['custom']['tracking_data_paths'] = [
+        ['not_used', test_data_dir / 'tracking']
+    ]
+
+    tracking_ingest.TrackingIngest.populate()
+
+    yield
+
+    if _tear_down:
+        session_keys = (experiment.Session
+                        & (experiment.BehaviorTrial
+                           & 'task in ("multi-target-licking", "audio delay")')).fetch('KEY')
+        (tracking.Tracking & session_keys).delete()
+        (tracking_ingest.TrackingIngest & session_keys).delete()
