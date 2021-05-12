@@ -6,6 +6,10 @@ import pandas as pd
 import pathlib
 import datajoint as dj
 import numpy as np
+import logging
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 
 # ------------------- SOME CONSTANTS -------------------
@@ -198,9 +202,6 @@ def tracking_ingestion(delay_response_behavior_ingestion,
     experiment = pipeline['experiment']
     tracking = pipeline['tracking']
 
-
-    # Dave's sessions
-    dj.config['custom']['session.user'] = 'daveliu'
     dj.config['custom']['tracking_data_paths'] = [
         ['not_used', test_data_dir / 'tracking']
     ]
