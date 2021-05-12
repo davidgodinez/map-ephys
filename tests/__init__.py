@@ -84,7 +84,9 @@ def testdata_paths():
         'delay-response-daveliu': 'dl56_tw2_20181126_134907.mat',
         'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat',
         'multi-target-licking-a': 'DL009_af_2D_20210415_141520.mat',
-        'multi-target-licking-b': 'DL010_af_2D_20210422_164220.mat'
+        'multi-target-licking-b': 'DL010_af_2D_20210422_164220.mat',
+        'tracking-delay-response': 'SC035_SC_RecordingRig3_20200107_111553.mat',
+        'tracking-multi-target-licking': 'DL004_af_2D_20210308_180001.mat'
     }
 
 

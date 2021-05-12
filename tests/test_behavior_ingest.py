@@ -16,7 +16,7 @@ def test_delay_response_behavior_ingest(delay_response_behavior_ingestion,
     assert len(experiment.Session & 'username = "susu"'
                & (experiment.BehaviorTrial & 'task = "audio delay"')) == 10
 
-    # test-case for 1 Susu's session
+    # test-case for 1 DaveLiu's session
     rel_path = testdata_paths['delay-response-daveliu']
     session_key = (experiment.Session
                    & (behavior_ingest.BehaviorIngest.BehaviorFile
