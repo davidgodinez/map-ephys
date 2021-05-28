@@ -434,7 +434,7 @@ class Breathing(dj.Imported):
             d['breathing'] = d.pop('data')
             d['breathing_timestamps'] = d.pop('timestamps')
 
-        self.insert(breathing_trials_data)
+        self.insert(breathing_trials_data, allow_direct_insert=True)
 
 
 @schema
@@ -456,7 +456,7 @@ class Piezoelectric(dj.Imported):
             d['piezoelectric'] = d.pop('data')
             d['piezoelectric_timestamps'] = d.pop('timestamps')
 
-        self.insert(piezoelectric_trials_data)
+        self.insert(piezoelectric_trials_data, allow_direct_insert=True)
 
 
 # ---- Photostim trials ----
