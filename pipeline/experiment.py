@@ -570,3 +570,4 @@ def extract_nidq_trial_data(session_key, channel):
             **session_key, 'trial': behav_trials[matched_trial_idx],
             'data': trial_data,
             'timestamps': np.arange(len(trial_data)) / sampling_rate})
+    return all_trials_data
