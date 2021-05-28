@@ -1,7 +1,10 @@
 from . import (dj_config, pipeline,
                load_animal, delay_response_behavior_ingestion,
                foraging_behavior_ingestion,
-               ephys_ingestion, testdata_paths)
+               ephys_ingestion,
+               multi_target_licking_behavior_ingestion,
+               multi_target_licking_ephys_ingestion,
+               testdata_paths)
 
 
 def test_ephys_ingest(pipeline, ephys_ingestion):
@@ -104,3 +107,19 @@ def test_ks2_npx2_ingest(pipeline, ephys_ingestion, testdata_paths):
 
     assert len(ephys.ClusterMetric & insertion_key) == 218
     assert len(ephys.WaveformMetric & insertion_key) == 218
+
+
+def test_multi_target_licking_ingest(pipeline, multi_target_licking_ephys_ingestion,
+                                     testdata_paths):
+    experiment = pipeline['experiment']
+    ephys = pipeline['ephys']
+    behavior_ingest = pipeline['behavior_ingest']
+
+    rel_path = testdata_paths['multi-target-licking-c']
+    session_key = (experiment.Session
+                   & (behavior_ingest.BehaviorIngest.BehaviorFile
+                      & f'behavior_file = "{rel_path}"')).fetch1('KEY')
+
+    assert len(ephys.ProbeInsertion & session_key) == 2
+    assert len(experiment.Breathing & session_key) == len(experiment.Piezoelectric & session_key) == len(experiment.SessionTrial & session_key)
+

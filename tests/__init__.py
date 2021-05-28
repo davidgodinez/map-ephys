@@ -85,8 +85,8 @@ def testdata_paths():
         'delay-response-susu': 'SC038_SC_RecordingRig3_20191119_115037.mat',
         'multi-target-licking-a': 'DL009_af_2D_20210415_141520.mat',
         'multi-target-licking-b': 'DL010_af_2D_20210422_164220.mat',
-        'tracking-delay-response': 'SC035_SC_RecordingRig3_20200107_111553.mat',
-        'tracking-multi-target-licking': 'DL004_af_2D_20210308_180001.mat'
+        'multi-target-licking-c': 'DL004_af_2D_20210308_180001.mat',
+        'tracking-delay-response': 'SC035_SC_RecordingRig3_20200107_111553.mat'
     }
 
 
@@ -178,6 +178,24 @@ def ephys_ingestion(delay_response_behavior_ingestion, pipeline):
     ephys = pipeline['ephys']
 
     session_keys = (experiment.Session & 'username = "susu"').fetch('KEY')
+
+    ephys_ingest.EphysIngest.populate(session_keys)
+
+    yield
+
+    if _tear_down:
+        (ephys.ProbeInsertion & session_keys).delete()
+        (ephys_ingest.EphysIngest & session_keys).delete()
+
+
+@pytest.fixture
+def multi_target_licking_ephys_ingestion(multi_target_licking_behavior_ingestion, pipeline):
+    ephys_ingest = pipeline['ephys_ingest']
+    experiment = pipeline['experiment']
+    ephys = pipeline['ephys']
+
+    session_keys = (experiment.Session
+                    & (experiment.BehaviorTrial & 'task = "multi-target-licking"')).fetch('KEY')
 
     ephys_ingest.EphysIngest.populate(session_keys)
 

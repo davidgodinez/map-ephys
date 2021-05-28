@@ -36,7 +36,7 @@ def test_multi_target_licking_tracking_ingest(tracking_ingestion,
     tracking = pipeline['tracking']
     behavior_ingest = pipeline['behavior_ingest']
 
-    rel_path = testdata_paths['tracking-multi-target-licking']
+    rel_path = testdata_paths['multi-target-licking-c']
     session_key = (experiment.Session
                    & (behavior_ingest.BehaviorIngest.BehaviorFile
                       & f'behavior_file = "{rel_path}"')).fetch1('KEY')
