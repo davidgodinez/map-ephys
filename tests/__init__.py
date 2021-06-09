@@ -236,3 +236,28 @@ def tracking_ingestion(delay_response_behavior_ingestion,
                            & 'task in ("multi-target-licking", "audio delay")')).fetch('KEY')
         (tracking.Tracking & session_keys).delete()
         (tracking_ingest.TrackingIngest & session_keys).delete()
+
+
+@pytest.fixture
+def histology_ingestion(delay_response_behavior_ingestion,
+                       multi_target_licking_behavior_ingestion,
+                       pipeline):
+    histology_ingest = pipeline['histology_ingest']
+    experiment = pipeline['experiment']
+    histology = pipeline['histology']
+
+    dj.config['custom']['histology_data_paths'] = [
+        "F:/map/test_data_full/histology",
+        "F:/map/test_data_full/ephys"]
+
+    histology_ingest.HistologyIngest.populate()
+
+    yield
+
+    if _tear_down:
+        session_keys = (experiment.Session
+                        & (experiment.BehaviorTrial
+                           & 'task in ("multi-target-licking", "audio delay")')).fetch('KEY')
+        (histology.ElectrodeCCFPosition & session_keys).delete()
+        (histology.LabeledProbeTrack & session_keys).delete()
+        (histology_ingest.HistologyIngest & session_keys).delete()
