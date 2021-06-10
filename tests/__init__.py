@@ -30,6 +30,7 @@ def dj_config():
     dj.config['database.password'] = 'simple'
     dj.config['database.reconnect'] = True
     dj.config['enable_python_native_blobs'] = True
+    dj.config['safemode'] = False
     dj.config['cache'] = (root_data_dir / 'djcache').as_posix()
 
     dj.config['stores'] = {'report_store':
