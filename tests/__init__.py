@@ -199,12 +199,16 @@ def multi_target_licking_ephys_ingestion(multi_target_licking_behavior_ingestion
                     & (experiment.BehaviorTrial & 'task = "multi-target-licking"')).fetch('KEY')
 
     ephys_ingest.EphysIngest.populate(session_keys)
+    experiment.Breathing.populate(session_keys)
+    experiment.Piezoelectric.populate(session_keys)
 
     yield
 
     if _tear_down:
         (ephys.ProbeInsertion & session_keys).delete()
         (ephys_ingest.EphysIngest & session_keys).delete()
+        (experiment.Breathing & session_keys).delete()
+        (experiment.Piezoelectric & session_keys).delete()
 
 
 @pytest.fixture
