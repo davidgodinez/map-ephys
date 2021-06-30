@@ -11,7 +11,7 @@ def test_ephys_ingest(pipeline, ephys_ingestion):
     experiment = pipeline['experiment']
     ephys = pipeline['ephys']
 
-    assert len(experiment.Session & ephys.Unit) == 5
+    assert len(experiment.Session & 'username = "susu"' & ephys.Unit) == len(experiment.Session & 'username = "susu"')
 
 
 def test_jrclust_ingest(pipeline, ephys_ingestion, testdata_paths):

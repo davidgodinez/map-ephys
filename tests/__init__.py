@@ -159,7 +159,7 @@ def multi_target_licking_behavior_ingestion(load_animal, pipeline):
     # Dave's sessions
     dj.config['custom']['session.user'] = 'daveliu'
     dj.config['custom']['behavior_data_paths'] = [
-        ['RRig-MLT', test_data_dir / 'behavior/multi_target_licking', 0]
+        ['RRig-MTL', test_data_dir / 'behavior/multi_target_licking', 0]
     ]
 
     behavior_ingest.BehaviorIngest.populate()
