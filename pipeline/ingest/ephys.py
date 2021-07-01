@@ -905,21 +905,23 @@ def _get_sess_dir(rigpath, h2o, sess_datetime):
         dglob = '{}_*_imec[0-9]'.format(
             sess_datetime.date().strftime('%Y%m%d')) + '/{}'
     else:
-        sess_dirs = list((rigpath / h2o).glob('*{}_{}_*'.format(
-            h2o, sess_datetime.date().strftime('%m%d%y'))))
-        for sess_dir in sess_dirs:
-            try:
-                npx_meta = NeuropixelsMeta(next(sess_dir.rglob('{}_*.ap.meta'.format(h2o))))
-            except StopIteration:
-                continue
-            # ensuring time difference between behavior-start and ephys-start is no more than 2 minutes - this is to handle multiple sessions in a day
-            start_time_difference = abs((npx_meta.recording_time - sess_datetime).total_seconds())
-            if start_time_difference <= 120:
-                dpath = sess_dir
-                dglob = '{}_{}_*_imec[0-9]'.format(h2o, sess_datetime.date().strftime('%m%d%y')) + '/{}'  # probe directory pattern
-                break
-            else:
-                log.info('Found {} - difference in behavior and ephys start-time: {} seconds (more than 2 minutes). Skipping...'.format(sess_dir, start_time_difference))
+        date_strings = [sess_datetime.date().strftime('%m%d%y'), sess_datetime.date().strftime('%Y%m%d')]
+        for date_string in date_strings:
+            sess_dirs = list(pathlib.Path(rigpath, h2o).glob('*{}*{}_*'.format(h2o, date_string)))
+            for sess_dir in sess_dirs:
+                try:
+                    npx_meta = NeuropixelsMeta(next(sess_dir.rglob('{}_*.ap.meta'.format(h2o))))
+                except StopIteration:
+                    continue
+                # ensuring time difference between behavior-start and ephys-start is no more than 2 minutes - this is to handle multiple sessions in a day
+                start_time_difference = abs((npx_meta.recording_time - sess_datetime).total_seconds())
+                if start_time_difference <= 120:
+                    dpath = sess_dir
+                    dglob = '{}*{}_*_imec[0-9]'.format(h2o, date_string) + '/{}'  # probe directory pattern
+                    break
+                else:
+                    log.info('Found {} - difference in behavior and ephys start-time: {} seconds (more than 2 minutes). Skipping...'.format(sess_dir, start_time_difference))
+
 
     return dpath, dglob
 
@@ -983,6 +985,7 @@ def read_bitcode(bitcode_dir, h2o, skey):
     Load bitcode file from specified dir - example bitcode format: e.g. 'SC022_030319_Imec3_bitcode.mat'
     :return: sync_behav, sync_ephys, trial_fix, trial_go, trial_start
     """
+    rig = (experiment.Session & skey).fetch1('rig')
     bitcode_dir = pathlib.Path(bitcode_dir)
     try:
         bf_path = next(bitcode_dir.glob('{}_*bitcode.mat'.format(h2o)))
@@ -990,7 +993,7 @@ def read_bitcode(bitcode_dir, h2o, skey):
         log.info('.... loading bitcode file: {}'.format(str(bf_path)))
     except StopIteration:
         try:
-            next(bitcode_dir.parent.glob('*.XA_0_0.txt'))
+            next(bitcode_dir.parent.glob('*.XA_0_0*.txt'))
             bitcode_format = 'nidq.XA.txt'
             log.info('.... loading bitcodes from "nidq.XA.txt" files')
         except StopIteration:
@@ -1042,7 +1045,7 @@ def read_bitcode(bitcode_dir, h2o, skey):
 
         if bitcodes is None:
             # no bitcodes (the nidq.XA.txt file for bitcode is not available)
-            if skey['rig'] == 'RRig-MTL' and len(trial_start_times) == len(behav_trials):
+            if rig == 'RRig-MTL' and len(trial_start_times) == len(behav_trials):
                 # for MTL rig, this is glitch in the recording system
                 # if the number of trial matches with behavior, then this is a 1-to-1 mapping
                 ephys_bitcodes = behavior_bitcodes
@@ -1080,28 +1083,42 @@ def build_bitcode(bitcode_dir):
 
     bitcode_dir = pathlib.Path(bitcode_dir)
 
+    # trial-start file
     try:
-        with open(next(bitcode_dir.glob('*.XA_0_0.txt')), 'r') as f:
-            trial_starts = f.read()
-            trial_starts = trial_starts.strip().split('\n')
-            trial_starts = np.array(trial_starts).astype(float)
+        trial_start_filepath = next(bitcode_dir.glob('*.XA_0_0.adj.txt'))
     except StopIteration:
-        raise FileNotFoundError('Generate bitcode failed. No trial-start file'
-                                ' "*.XA_1_2.txt"'
-                                ' for found in {}'.format(bitcode_dir))
+        try:
+            trial_start_filepath = next(bitcode_dir.glob('*.XA_0_0.txt'))
+        except StopIteration:
+            raise FileNotFoundError('Generate bitcode failed. No trial-start file'
+                                    ' "*.XA_1_2.txt"'
+                                    ' found in {}'.format(bitcode_dir))
+    with open(trial_start_filepath, 'r') as f:
+        trial_starts = f.read()
+        trial_starts = trial_starts.strip().split('\n')
+        trial_starts = np.array(trial_starts).astype(float)
 
+    # bitcode file
     try:
-        bitcode_file = next(bitcode_dir.glob('*.XA_1_2.txt'))
-        assert bitcode_file.stat().st_size / 1024 > 0
-        with open(bitcode_file, 'r') as f:
+        bitcode_filepath = next(bitcode_dir.glob('*.XA_1_2.adj.txt'))
+    except StopIteration:
+        try:
+            bitcode_filepath = next(bitcode_dir.glob('*.XA_1_2.txt'))
+        except StopIteration:
+            log.info('Generate bitcode failed. No bitcode file "*.XA_1_2.txt"'
+                     ' found in {}'.format(bitcode_dir))
+            bitcode_filepath = None
+
+    if bitcode_filepath is None or bitcode_filepath.stat().st_size == 0:
+        log.info('Generate bitcode failed. 0kb bitcode file "*.XA_1_2.txt"'
+                 ' found in {}'.format(bitcode_dir))
+        bitcodes = None
+    else:
+        with open(bitcode_filepath, 'r') as f:
             bitcode_times = f.read()
             bitcode_times = bitcode_times.strip().split('\n')
             bitcode_times = np.array(bitcode_times).astype(float)
-    except (StopIteration, AssertionError):
-        log.info('Generate bitcode failed. No bitcode file "*.XA_1_2.txt"'
-                 ' for found in {}'.format(bitcode_dir))
-        bitcodes = None
-    else:
+
         trial_ends = np.concatenate([trial_starts[1:], [trial_starts[-1] + 99]])  # the last trial to be arbitrarily long
         bitcodes = []
         for trial_start, trial_end in zip(trial_starts, trial_ends):
