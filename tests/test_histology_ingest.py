@@ -24,7 +24,7 @@ def test_format1_histology_ingest(pipeline, testdata_paths, histology_ingestion)
                         f'ephys_file LIKE "%{rel_path_win}%" ESCAPE "|"']).fetch1('KEY')
 
     assert len(histology.ElectrodeCCFPosition.ElectrodePosition & insertion_key) == 318
-    assert len(histology.LabeledProbeTrack.Point & insertion_key) == 9
+    assert len(histology.LabeledProbeTrack.Point & insertion_key) == 20
 
 
 def test_format2_histology_ingest(pipeline, testdata_paths, histology_ingestion):
