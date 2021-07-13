@@ -215,7 +215,7 @@ def multi_target_licking_ephys_ingestion(multi_target_licking_behavior_ingestion
 def load_insertion_location(ephys_ingestion, pipeline):
     shell = pipeline['shell']
     shell.load_insertion_location(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
-
+    shell.load_insertion_location(project_dir / 'tests/test_data/RecordingNotes_dl.xlsx')
     yield
 
 

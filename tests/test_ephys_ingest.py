@@ -7,6 +7,19 @@ from . import (dj_config, pipeline,
                testdata_paths)
 
 
+def test_load_insertion_info(pipeline, load_insertion_location):
+    experiment = pipeline['experiment']
+    ephys = pipeline['ephys']
+
+    mtl_sessions = experiment.Session & 'rig = "RRig-MTL"'
+
+    assert len(ephys.ProbeInsertion.InsertionLocation & mtl_sessions) == len(ephys.ProbeInsertion & mtl_sessions)
+    assert len(ephys.ProbeInsertionQuality & mtl_sessions) == 2
+
+    susu_sessions = experiment.Session & 'username = "susu"'
+    assert len(ephys.ProbeInsertion.InsertionLocation & susu_sessions) == 8
+
+
 def test_jrclust_ingest(pipeline, ephys_ingestion, testdata_paths):
     ephys = pipeline['ephys']
     ephys_ingestion = pipeline['ephys_ingest']
