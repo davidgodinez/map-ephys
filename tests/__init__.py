@@ -68,6 +68,7 @@ def pipeline():
            'tracking': tracking,
            'psth': psth,
            'shell': shell,
+           'export': export,
            'behavior_ingest': behavior_ingest,
            'tracking_ingest': tracking_ingest,
            'ephys_ingest': ephys_ingest,
@@ -212,7 +213,7 @@ def multi_target_licking_ephys_ingestion(multi_target_licking_behavior_ingestion
 
 
 @pytest.fixture
-def load_insertion_location(ephys_ingestion, pipeline):
+def load_insertion_info(ephys_ingestion, pipeline):
     shell = pipeline['shell']
     shell.load_insertion_location(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
     shell.load_insertion_location(project_dir / 'tests/test_data/RecordingNotes_dl.xlsx')

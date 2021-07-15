@@ -4,10 +4,10 @@ from . import (dj_config, pipeline,
                ephys_ingestion,
                multi_target_licking_behavior_ingestion,
                multi_target_licking_ephys_ingestion,
-               testdata_paths)
+               load_insertion_info, testdata_paths)
 
 
-def test_load_insertion_info(pipeline, load_insertion_location):
+def test_load_insertion_info(pipeline, load_insertion_info):
     experiment = pipeline['experiment']
     ephys = pipeline['ephys']
 

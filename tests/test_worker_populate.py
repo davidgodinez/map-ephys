@@ -1,6 +1,7 @@
 from . import (dj_config, pipeline,
                load_animal, delay_response_behavior_ingestion,
                foraging_behavior_ingestion,
+               load_insertion_info,
                ephys_ingestion, testdata_paths)
 
 

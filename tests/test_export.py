@@ -4,10 +4,10 @@ from . import (dj_config, project_dir, pipeline,
                load_animal, delay_response_behavior_ingestion,
                foraging_behavior_ingestion,
                ephys_ingestion, testdata_paths,
-               load_insertion_location)
+               load_insertion_info)
 
 
-def test_export(load_insertion_location, pipeline):
+def test_export(load_insertion_info, pipeline):
     ephys = pipeline['ephys']
     export = pipeline['export']
 
