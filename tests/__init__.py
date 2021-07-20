@@ -219,6 +219,12 @@ def load_insertion_info(ephys_ingestion, pipeline):
     shell.load_insertion_location(project_dir / 'tests/test_data/RecordingNotes_dl.xlsx')
     yield
 
+    if _tear_down:
+        ephys = pipeline['ephys']
+        ephys.ProbeInsertion.InsertionLocation.delete(force=True)
+        ephys.ProbeInsertion.RecordableBrainRegion.delete(force=True)
+        ephys.ProbeInsertionQuality.delete()
+
 
 @pytest.fixture
 def tracking_ingestion(delay_response_behavior_ingestion,
