@@ -25,9 +25,9 @@ project_dir = (pathlib.Path(__file__) / '../..').resolve()
 
 @pytest.fixture(autouse=True)
 def dj_config():
-    dj.config['database.host'] = 'localhost'
-    dj.config['database.user'] = 'root'
-    dj.config['database.password'] = 'simple'
+    dj.config['database.host'] = os.environ.get('DJ_HOST', 'localhost')
+    dj.config['database.user'] = os.environ.get('DJ_USER', 'root')
+    dj.config['database.password'] = os.environ.get('DJ_PASS', 'simple')
     dj.config['database.reconnect'] = True
     dj.config['enable_python_native_blobs'] = True
     dj.config['safemode'] = False
