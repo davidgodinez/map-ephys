@@ -12,11 +12,31 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
+"""
+The overall integration test strategy
+1. Rely on a set of test data already in supported directory structure and file-naming format
+    - animal, probe insertion info excel files
+    - behavior data - .mat files
+    - ephys data - ks folder, bitcode files
+    - tracking data - csv files
+    - histology data - e.g. csv files, json files, .mat files
+2. Initiate ingetions from the `pipeline.ingest` package
+    - BehaviorIngest
+    - EphysIngest
+    - TrackingIngest
+    - HistologyIngest
+3. Run populate
+    - pretty much all in the `shell.automate_computation()` function
+    
+Note: poor coverage on foraging ingestion/populate 
+"""
+
+
 # ------------------- SOME CONSTANTS -------------------
 
 _tear_down = False
 
-root_data_dir = pathlib.Path(r'F:/map')
+root_data_dir = pathlib.Path(os.environ.get('MAP_ROOT_DATA_DIR', r'F:/map'))
 test_data_dir = root_data_dir / 'test_data_full'
 project_dir = (pathlib.Path(__file__) / '../..').resolve()
 
