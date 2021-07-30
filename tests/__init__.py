@@ -115,6 +115,12 @@ def testdata_paths():
 @pytest.fixture
 def load_animal(pipeline):
     shell = pipeline['shell']
+    lab = pipeline['lab']
+
+    lab.Person.insert([{'username': 'susu', 'fullname': 'Susu Chen'},
+                       {'username': 'daveliu', 'fullname': 'Dave Liu'},
+                       {'username': 'HH', 'fullname': 'Han Hou'},])
+
     shell.load_animal(project_dir / 'tests/test_data/Multi-regionRecordingNotes_sc.xlsx')
 
     yield
